@@ -1,5 +1,5 @@
-using System.Windows.Forms;
-
+using System;
+using System.Windows.Forms;``````
 namespace WinFormsApp1
 {
     public partial class Form1 : Form
@@ -8,72 +8,64 @@ namespace WinFormsApp1
         {
             InitializeComponent();
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            if (password.Text.Length < 8)
-            {
-                MessageBox.Show("En az 8 simvoldan ibaret olmalidir");
-            }
-            string specialSymbols = "!@#$%^&*()-_=+[]{}|;:'\",.<>?/`~";
+            string pwd = password.Text;
+            string errors = "";
+            string digits = "0123456789";
             string upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             string lowerLetters = "abcdefghijklmnopqrstuvwxyz";
-            string digits = "0123456789";
+            string specialSymbols = "!@#$%^&*()-_=+[]{}|;:'\",.<>?/`~";
+
             bool hasUpper = false;
             bool hasLower = false;
             bool hasDigit = false;
             bool hasSpecial = false;
-            bool has3InARow = false;
-            for (int i = 0; i < password.Text.Length; i++)
-            {
-                if (digits.Contains(password.Text[i]))
-                {
-                    if (i + 1 < password.Text.Length && digits.Contains(password.Text[i + 1]))
-                    {
-                        if (i + 2 < password.Text.Length && digits.Contains(password.Text[i + 2]))
-                            has3InARow = true;
-                        else hasDigit = true;
-                    }
-                }
-                else if (upperLetters.Contains(password.Text[i]))
-                {
-                    if (i + 1 < password.Text.Length && upperLetters.Contains(password.Text[i + 1]))
-                    {
-                        if ( i + 2 < password.Text.Length && upperLetters.Contains(password.Text[i + 2]))
-                            has3InARow = true;
-                        else hasUpper = true;
-                    }
-                }
-                else if (lowerLetters.Contains(password.Text[i]))
-                {
-                    if (i + 1 < password.Text.Length && lowerLetters.Contains(password.Text[i + 1]))
-                    {
-                        if (i + 2 < password.Text.Length && lowerLetters.Contains(password.Text[i + 2]))
-                            has3InARow = true;
-                        else hasLower = true;
-                    }
-                }
-                else if (specialSymbols.Contains(password.Text[i]))
-                {
-                    if (i + 1 < password.Text.Length && specialSymbols.Contains(password.Text[i + 1]))
-                    {
-                        if ( i + 2 < password.Text.Length && specialSymbols.Contains(password.Text[i + 2]))
-                            has3InARow = true;
-                        else hasSpecial = true;
-                    }
-                }
-            }
-                if (hasDigit && hasLower && hasUpper && hasSpecial && !has3InARow) MessageBox.Show("Sifre ugurla yaradildi");
-                else
-                {
-                    if (!hasUpper) MessageBox.Show("En az 1 boyuk herf olmalidir");
-                    if (!hasLower) MessageBox.Show("En az 1 kicik herf olmalidir");
-                    if (!hasDigit) MessageBox.Show("En az 1 reqem olmalidir");
-                    if (!hasSpecial) MessageBox.Show("En az 1 xususi simvol olmalidir");
-                    if(has3InARow) MessageBox.Show("Eyni tipli simvollar ard-arda 3 defe gele bilmez");
-                }
 
-            
+            for (int i = 0; i < pwd.Length; i++)
+            {
+                char ch = pwd[i];
+
+                if (digits.Contains(ch)) hasDigit = true;
+                else if (upperLetters.Contains(ch)) hasUpper = true;
+                else if (lowerLetters.Contains(ch)) hasLower = true;
+                else if (specialSymbols.Contains(ch)) hasSpecial = true;
+            }
+
+            if (pwd.Length < 8)
+                errors += "Minimum 8 simvol olmalidir.\n";
+            if (!hasUpper)
+                errors += "En azi 1 b y k herf olmalidir.\n";
+            if (!hasLower)
+                errors += "En azi 1 ki ik herf olmalidir.\n";
+            if (!hasDigit)
+                errors += "En azi 1 reqem olmalidir.\n";
+            if (!hasSpecial)
+                errors += "En azi 1 x susi simvol olmalidir.\n";
+            if (ContainsSequentialTriplet(pwd, digits) ||
+                ContainsSequentialTriplet(pwd, lowerLetters) ||
+                ContainsSequentialTriplet(pwd, upperLetters))
+            {
+                errors += "- 'abc', '123' kimi ardicil simvollar olmamalidir.\n";
+            }
+
+            if (string.IsNullOrEmpty(errors))
+                MessageBox.Show("Sifre ugurla yaradildi");
+            else
+                MessageBox.Show("Sifre teleblere cavab vermir:\n\n" + errors);
+        }
+        private bool ContainsSequentialTriplet(string input, string alphabet)
+        {
+            for (int i = 0; i <= input.Length - 3; i++)
+            {
+                int index1 = alphabet.IndexOf(input[i]);
+                int index2 = alphabet.IndexOf(input[i + 1]);
+                int index3 = alphabet.IndexOf(input[i + 2]);
+
+                if (index1 != -1 && index2 == index1 + 1 && index3 == index2 + 1)
+                    return true;
+            }
+            return false;
         }
     }
 }
